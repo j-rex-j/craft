@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voxel Online</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="hud">
+      <h1>Voxel Online</h1>
+      <p>Click to lock mouse. WASD move, Space/Shift up/down, Left click break, Right click place.</p>
+      <div class="row">
+        <label for="blockSelect">Block:</label>
+        <select id="blockSelect">
+          <option value="grass">Grass</option>
+          <option value="dirt">Dirt</option>
+          <option value="stone">Stone</option>
+          <option value="wood">Wood</option>
+          <option value="leaf">Leaf</option>
+          <option value="sand">Sand</option>
+          <option value="brick">Brick</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="skinSelect">Player Texture:</label>
+        <select id="skinSelect">
+          <option value="blue">Blue</option>
+          <option value="red">Red</option>
+          <option value="green">Green</option>
+          <option value="purple">Purple</option>
+        </select>
+      </div>
+      <p id="status">Connecting...</p>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module" src="game.js"></script>
+  </body>
+</html>
