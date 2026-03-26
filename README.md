@@ -1,33 +1,29 @@
-# Voxel Online (Browser-Only)
+# Voxel Online
 
-A browser-only multiplayer 3D voxel sandbox inspired by classic block-building gameplay.
+A lightweight browser-based multiplayer 3D voxel sandbox inspired by classic block-building gameplay loops.
 
-## What changed
+## Features
 
-This version runs completely in the browser:
+- Real-time multiplayer movement synced with Socket.IO
+- Place and remove voxel blocks with mouse clicks
+- Procedurally generated starter map with terrain + trees
+- Custom block textures generated as pixel-art style materials
+- Selectable player color/"skin" texture profile
 
-- No `npm install`
-- No local Node.js server
-- Multiplayer uses WebRTC data channels via PeerJS cloud signaling
+## Run locally
 
-## Run
+```bash
+npm install
+npm start
+```
 
-Open either file in a browser:
+Then open `http://localhost:3000` in multiple browser tabs/windows.
 
-- `public/index.html` (single client)
-- `public/preview.html` (two side-by-side clients for quick host/join testing)
-
-> If your browser blocks opening local files, serve the folder with any static host (for example GitHub Pages, Netlify, or any drag-and-drop static host).
-
-## Multiplayer flow
-
-1. In one tab/window click **Host Session**.
-2. Copy the shown host ID.
-3. In another tab/window enter that host ID and click **Join**.
+To preview two clients side-by-side in one browser window, open `http://localhost:3000/preview.html`.
 
 ## Controls
 
-- Click game canvas: lock mouse
+- Click game window: lock mouse
 - `WASD`: move
 - `Space` / `Shift`: up/down (free-fly)
 - Left click: remove block

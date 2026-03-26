@@ -1,0 +1,14 @@
+{
+  "name": "voxel-online",
+  "version": "1.0.0",
+  "description": "Multiplayer voxel game inspired by classic browser block games",
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  }
+}

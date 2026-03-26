@@ -18,15 +18,23 @@ canvas {
   left: 12px;
   top: 12px;
   padding: 10px 12px;
-  width: 360px;
+  width: 320px;
   border-radius: 10px;
   background: rgba(10, 20, 35, 0.72);
   backdrop-filter: blur(2px);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
-#hud h1 { margin: 0 0 8px; font-size: 18px; }
-#hud p { margin: 0 0 8px; font-size: 13px; line-height: 1.3; }
+#hud h1 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+#hud p {
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.3;
+}
 
 .row {
   display: flex;
@@ -35,15 +43,10 @@ canvas {
   margin-bottom: 6px;
 }
 
-select,
-input,
-button {
+select {
   background: #1b263b;
   color: #e0e1dd;
   border: 1px solid #415a77;
   border-radius: 6px;
-  padding: 5px 8px;
+  padding: 3px 6px;
 }
-
-button { cursor: pointer; }
-input { flex: 1; }
