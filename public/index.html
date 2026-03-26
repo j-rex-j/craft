@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voxel Online (Browser-Only)</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="hud">
+      <h1>Voxel Online (Browser-Only)</h1>
+      <p>Pure browser build: no local install/server required.</p>
+      <div class="row">
+        <button id="hostBtn">Host Session</button>
+      </div>
+      <div class="row">
+        <input id="roomInput" placeholder="Host ID to join" />
+        <button id="joinBtn">Join</button>
+      </div>
+      <p id="roomStatus">Network: offline</p>
+      <div class="row">
+        <label for="blockSelect">Block:</label>
+        <select id="blockSelect">
+          <option value="grass">Grass</option>
+          <option value="dirt">Dirt</option>
+          <option value="stone">Stone</option>
+          <option value="wood">Wood</option>
+          <option value="leaf">Leaf</option>
+          <option value="sand">Sand</option>
+          <option value="brick">Brick</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="skinSelect">Player Texture:</label>
+        <select id="skinSelect">
+          <option value="blue">Blue</option>
+          <option value="red">Red</option>
+          <option value="green">Green</option>
+          <option value="purple">Purple</option>
+        </select>
+      </div>
+      <p id="status">Click canvas to lock mouse. WASD move, Space/Shift fly, LMB break, RMB place.</p>
+    </div>
+
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <script src="game.js"></script>
+  </body>
+</html>

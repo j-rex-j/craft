@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voxel Online Preview</title>
+    <style>
+      body { margin: 0; background: #0b1020; color: #e6edf7; font-family: Inter, system-ui, sans-serif; }
+      header { padding: 14px 16px; border-bottom: 1px solid #27324a; }
+      main { height: calc(100vh - 120px); display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px; }
+      iframe { width: 100%; height: 100%; border: 1px solid #27324a; border-radius: 8px; background: #000; }
+      @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Browser-Only Multiplayer Preview</h1>
+      <p>1) In left panel click <b>Host Session</b>. 2) Copy host ID into right panel and click <b>Join</b>.</p>
+      <p>Everything runs in-browser via WebRTC (PeerJS cloud signaling), no local Node/npm install needed.</p>
+    </header>
+    <main>
+      <iframe src="./index.html" title="Player A"></iframe>
+      <iframe src="./index.html" title="Player B"></iframe>
+    </main>
+  </body>
+</html>
