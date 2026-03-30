@@ -326,6 +326,11 @@ function updateMovement(dt) {
   tryBulldozer();
 }
 
+  hammer.position.set(0.48, -0.56, -0.68);
+  hammer.rotation.set(-0.4 + hammerSwing * 0.95, -0.2, 0.2 + hammerSwing * 0.6);
+}
+
+const clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);
   const dt = Math.min(clock.getDelta(), 0.05);
@@ -334,8 +339,12 @@ function animate() {
   updateCharges(dt);
   updateRubble(dt);
 
-  renderer.render(scene, camera);
-}
+document.addEventListener("mousemove", (event) => {
+  if (!pointerLocked) return;
+  yaw -= event.movementX * 0.0024;
+  pitch -= event.movementY * 0.0021;
+  pitch = Math.max(-1.25, Math.min(1.25, pitch));
+});
 
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
