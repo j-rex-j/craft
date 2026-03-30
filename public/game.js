@@ -4,10 +4,11 @@ const cashEl = document.getElementById("cash");
 const toolEl = document.getElementById("tool");
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x92c7ff);
-scene.fog = new THREE.Fog(0x92c7ff, 45, 230);
+scene.background = new THREE.Color(0x7ec0ff);
+scene.fog = new THREE.Fog(0x7ec0ff, 50, 210);
 
-const camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.1, 450);
+const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 450);
+camera.position.set(0, 7, 30);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -15,315 +16,315 @@ renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
 scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-const sun = new THREE.DirectionalLight(0xfff1c7, 1.0);
-sun.position.set(55, 100, 35);
+const sun = new THREE.DirectionalLight(0xfff0cc, 0.95);
+sun.position.set(60, 100, 30);
 sun.castShadow = true;
 scene.add(sun);
 
 const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(460, 460),
-  new THREE.MeshStandardMaterial({ color: 0x3d6f42, roughness: 0.92 })
+  new THREE.PlaneGeometry(420, 420),
+  new THREE.MeshStandardMaterial({ color: 0x3f6f3f, roughness: 0.95 })
 );
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
 
-const streetMaterial = new THREE.MeshStandardMaterial({ color: 0x353c44, roughness: 0.95 });
-for (let i = -90; i <= 90; i += 18) {
-  const roadA = new THREE.Mesh(new THREE.BoxGeometry(180, 0.05, 5), streetMaterial);
-  roadA.position.set(0, 0.03, i);
-  roadA.receiveShadow = true;
-  scene.add(roadA);
-
-  const roadB = new THREE.Mesh(new THREE.BoxGeometry(5, 0.05, 180), streetMaterial);
-  roadB.position.set(i, 0.03, 0);
-  roadB.receiveShadow = true;
-  scene.add(roadB);
-}
-
-const materialSet = {
-  concrete: new THREE.MeshStandardMaterial({ color: 0xa0a0a0, roughness: 0.9 }),
-  brick: new THREE.MeshStandardMaterial({ color: 0xbe6f50, roughness: 0.92 }),
-  steel: new THREE.MeshStandardMaterial({ color: 0x8698aa, roughness: 0.55, metalness: 0.3 }),
-  glass: new THREE.MeshStandardMaterial({ color: 0x8fd5ff, roughness: 0.2, metalness: 0.05 }),
-  rubble: new THREE.MeshStandardMaterial({ color: 0x565656, roughness: 0.88 }),
-  hammerHead: new THREE.MeshStandardMaterial({ color: 0x5f6978, roughness: 0.35, metalness: 0.65 }),
-  hammerHandle: new THREE.MeshStandardMaterial({ color: 0x5a3f2b, roughness: 0.8 })
-};
-
-const worldBlocks = [];
-const dynamicBlocks = [];
-const buildings = [];
-
-let totalValue = 0;
-let destroyedValue = 0;
-let cash = 0;
-let won = false;
+const rubbleMaterial = new THREE.MeshStandardMaterial({ color: 0x4f4f4f, roughness: 0.85, metalness: 0.05 });
+const chargeMaterial = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0x333333, roughness: 0.5 });
 
 const keys = new Set();
 let pointerLocked = false;
 let yaw = 0;
 let pitch = 0;
-let hammerSwing = 0;
-let hammerCooldown = 0;
+const moveDir = new THREE.Vector3();
+const velocity = new THREE.Vector3();
 
-const player = {
-  position: new THREE.Vector3(0, 1.8, 70),
-  radius: 0.32,
-  halfHeight: 0.9,
-  velocityY: 0
+const raycaster = new THREE.Raycaster();
+const center = new THREE.Vector2(0, 0);
+
+let bulldozerMode = false;
+const charges = [];
+const rubble = [];
+const buildings = [];
+let totalValue = 0;
+let destroyedValue = 0;
+let cash = 0;
+let won = false;
+
+function blockTexture(a, b) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext("2d");
+
+  ctx.fillStyle = a;
+  ctx.fillRect(0, 0, 64, 64);
+
+  for (let y = 0; y < 64; y += 8) {
+    for (let x = 0; x < 64; x += 8) {
+      if ((x + y) % 16 === 0) {
+        ctx.fillStyle = b;
+        ctx.fillRect(x, y, 8, 8);
+      }
+    }
+  }
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.magFilter = THREE.NearestFilter;
+  tex.minFilter = THREE.NearestFilter;
+  return tex;
+}
+
+const materials = {
+  glass: new THREE.MeshStandardMaterial({ color: 0x8fd8ff, transparent: true, opacity: 0.55, roughness: 0.1 }),
+  concrete: new THREE.MeshStandardMaterial({ map: blockTexture("#8c8c8c", "#707070"), roughness: 0.95 }),
+  steel: new THREE.MeshStandardMaterial({ map: blockTexture("#8ba2b0", "#586f7e"), metalness: 0.35, roughness: 0.4 }),
+  brick: new THREE.MeshStandardMaterial({ map: blockTexture("#c15f46", "#894634"), roughness: 0.9 }),
+  roof: new THREE.MeshStandardMaterial({ map: blockTexture("#363942", "#22232a"), roughness: 0.65 })
 };
 
-const moveDelta = new THREE.Vector3();
-const raycaster = new THREE.Raycaster();
-const cameraDir = new THREE.Vector3();
+function spawnBuilding(cx, cz, floors, style) {
+  const building = new THREE.Group();
+  const floorsHeight = floors * 2.5;
+  const width = 6 + Math.floor(Math.random() * 4);
+  const depth = 6 + Math.floor(Math.random() * 4);
+  const value = floors * width * depth * 25;
+  totalValue += value;
 
-const hammer = new THREE.Group();
-const hammerHead = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.24), materialSet.hammerHead);
-hammerHead.position.set(0, 0.45, -0.05);
-const hammerHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.7, 10), materialSet.hammerHandle);
-hammerHandle.position.set(0, 0.1, 0);
-hammer.add(hammerHead);
-hammer.add(hammerHandle);
-camera.add(hammer);
-scene.add(camera);
+  const shell = new THREE.Mesh(
+    new THREE.BoxGeometry(width, floorsHeight, depth),
+    style === "industrial" ? materials.steel : materials.concrete
+  );
+  shell.position.y = floorsHeight / 2;
+  shell.castShadow = true;
+  shell.receiveShadow = true;
+
+  const roof = new THREE.Mesh(new THREE.BoxGeometry(width + 0.15, 0.8, depth + 0.15), materials.roof);
+  roof.position.y = floorsHeight + 0.4;
+  roof.castShadow = true;
+
+  building.add(shell);
+  building.add(roof);
+
+  for (let y = 1.4; y < floorsHeight - 0.5; y += 2.3) {
+    const windowStrip = new THREE.Mesh(
+      new THREE.BoxGeometry(width - 0.5, 0.9, 0.2),
+      materials.glass
+    );
+    windowStrip.position.set(0, y, depth / 2 + 0.08);
+    building.add(windowStrip);
+
+    const backStrip = windowStrip.clone();
+    backStrip.position.z = -depth / 2 - 0.08;
+    building.add(backStrip);
+  }
+
+  building.position.set(cx, 0, cz);
+  building.userData = { destroyed: false, value, radius: Math.max(width, depth) * 0.72 };
+  scene.add(building);
+  buildings.push(building);
+}
+
+function generateMap() {
+  const lots = [
+    [-30, -25],
+    [-8, -30],
+    [18, -28],
+    [35, -15],
+    [-35, 10],
+    [-10, 20],
+    [15, 14],
+    [35, 25]
+  ];
+
+  lots.forEach(([x, z], i) => {
+    const floors = 3 + Math.floor(Math.random() * 7);
+    spawnBuilding(x, z, floors, i % 2 === 0 ? "office" : "industrial");
+  });
+
+  updateHud();
+}
 
 function updateHud() {
   const progress = totalValue === 0 ? 0 : Math.min(100, Math.round((destroyedValue / totalValue) * 100));
   destroyedEl.textContent = `${progress}%`;
   cashEl.textContent = `$${cash.toLocaleString()}`;
-  toolEl.textContent = "Sledge Hammer";
+  toolEl.textContent = bulldozerMode ? "Bulldozer Ram" : "Charge Launcher";
 
-  if (!won && progress >= 75) {
+  if (progress >= 75 && !won) {
     won = true;
-    statusEl.textContent = "Contract complete. Block reduced to rubble.";
+    statusEl.textContent = "Contract complete. City block cleared!";
   }
 }
 
-function blockMesh(kind) {
-  const material = kind === "glass" ? materialSet.glass : materialSet[kind] || materialSet.concrete;
-  const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-  return mesh;
-}
+function spawnRubble(position, count = 12) {
+  for (let i = 0; i < count; i += 1) {
+    const size = 0.25 + Math.random() * 0.4;
+    const piece = new THREE.Mesh(new THREE.BoxGeometry(size, size, size), rubbleMaterial);
+    piece.position.copy(position);
+    piece.position.y += 1.5;
+    piece.castShadow = true;
 
-function addStaticBlock(x, y, z, kind, buildingId) {
-  const mesh = blockMesh(kind);
-  mesh.position.set(x, y, z);
-  mesh.userData = {
-    x,
-    y,
-    z,
-    buildingId,
-    kind,
-    dynamic: false,
-    value: kind === "glass" ? 18 : 24,
-    velocity: new THREE.Vector3()
-  };
-  worldBlocks.push(mesh);
-  scene.add(mesh);
-  totalValue += mesh.userData.value;
-}
-
-function spawnBuilding(baseX, baseZ, width, depth, floors, palette, buildingId) {
-  const height = floors * 3;
-  const halfW = Math.floor(width / 2);
-  const halfD = Math.floor(depth / 2);
-
-  for (let y = 1; y <= height; y += 1) {
-    for (let x = -halfW; x <= halfW; x += 1) {
-      for (let z = -halfD; z <= halfD; z += 1) {
-        const edge = Math.abs(x) === halfW || Math.abs(z) === halfD;
-        if (!edge) continue;
-
-        const globalX = baseX + x;
-        const globalZ = baseZ + z;
-        const windowStripe = y % 3 === 2 && (Math.abs(x) === halfW || Math.abs(z) === halfD);
-        const kind = windowStripe && Math.random() < 0.58 ? "glass" : palette;
-        addStaticBlock(globalX, y, globalZ, kind, buildingId);
-      }
-    }
-  }
-
-  for (let x = -halfW; x <= halfW; x += 1) {
-    for (let z = -halfD; z <= halfD; z += 1) {
-      addStaticBlock(baseX + x, height + 1, baseZ + z, "steel", buildingId);
-    }
-  }
-
-  buildings.push({
-    id: buildingId,
-    center: new THREE.Vector3(baseX, height / 2, baseZ),
-    radius: Math.max(width, depth) * 0.7,
-    value: width * depth * floors * 110
-  });
-}
-
-function generateDetailedCity() {
-  let id = 1;
-  for (let gx = -3; gx <= 3; gx += 1) {
-    for (let gz = -3; gz <= 3; gz += 1) {
-      if (Math.abs(gx) <= 1 && Math.abs(gz) <= 1) continue;
-      const lotX = gx * 18 + Math.floor(Math.random() * 4 - 2);
-      const lotZ = gz * 18 + Math.floor(Math.random() * 4 - 2);
-      const w = 6 + Math.floor(Math.random() * 4);
-      const d = 6 + Math.floor(Math.random() * 4);
-      const floors = 3 + Math.floor(Math.random() * 7);
-      const kind = ["concrete", "brick", "steel"][Math.floor(Math.random() * 3)];
-      spawnBuilding(lotX, lotZ, w, d, floors, kind, id);
-      id += 1;
-
-      if (Math.random() < 0.35) {
-        const annexFloors = 2 + Math.floor(Math.random() * 3);
-        spawnBuilding(lotX + (w + 2), lotZ + 1, 4 + Math.floor(Math.random() * 3), 4 + Math.floor(Math.random() * 3), annexFloors, kind, id);
-        id += 1;
-      }
-    }
-  }
-
-  updateHud();
-}
-
-function getNearbyStaticBlocks(position, radius) {
-  const result = [];
-  const r2 = radius * radius;
-  for (const block of worldBlocks) {
-    if (block.userData.dynamic) continue;
-    if (block.position.distanceToSquared(position) <= r2) {
-      result.push(block);
-    }
-  }
-  return result;
-}
-
-function breakWithHammer() {
-  if (!pointerLocked || hammerCooldown > 0 || won) return;
-
-  hammerSwing = 1;
-  hammerCooldown = 0.35;
-
-  camera.getWorldDirection(cameraDir);
-  raycaster.set(camera.position, cameraDir);
-  const staticTargets = worldBlocks.filter((b) => !b.userData.dynamic);
-  const hits = raycaster.intersectObjects(staticTargets, false);
-
-  if (!hits.length || hits[0].distance > 5) {
-    statusEl.textContent = "Swing missed. Get closer.";
-    return;
-  }
-
-  const hitBlock = hits[0].object;
-  const buildingId = hitBlock.userData.buildingId;
-  const hitPosition = hitBlock.position;
-  const localBreak = [];
-
-  for (const candidate of getNearbyStaticBlocks(hitPosition, 1.9)) {
-    if (candidate.userData.buildingId !== buildingId) continue;
-    localBreak.push(candidate);
-  }
-
-  if (!localBreak.length) return;
-
-  for (const block of localBreak) {
-    block.userData.dynamic = true;
-    block.userData.velocity.set(
-      (Math.random() - 0.5) * 5,
-      4 + Math.random() * 3,
-      (Math.random() - 0.5) * 5
+    piece.userData.velocity = new THREE.Vector3(
+      (Math.random() - 0.5) * 10,
+      Math.random() * 8 + 3,
+      (Math.random() - 0.5) * 10
     );
-    block.material = materialSet.rubble;
-    dynamicBlocks.push(block);
+    piece.userData.life = 5 + Math.random() * 3;
 
-    destroyedValue += block.userData.value;
-    cash += block.userData.value;
+    scene.add(piece);
+    rubble.push(piece);
   }
+}
 
-  statusEl.textContent = `Hammer impact: ${localBreak.length} blocks detached.`;
+function destroyBuilding(building, hitPoint) {
+  if (building.userData.destroyed) return;
+
+  building.userData.destroyed = true;
+  destroyedValue += building.userData.value;
+  cash += Math.round(building.userData.value * 1.35);
+
+  spawnRubble(hitPoint || building.position, 20);
+  scene.remove(building);
   updateHud();
 }
 
-function resolvePlayerCollision(nextPosition) {
-  const r = player.radius;
-  const minX = nextPosition.x - r;
-  const maxX = nextPosition.x + r;
-  const minY = nextPosition.y - player.halfHeight;
-  const maxY = nextPosition.y + player.halfHeight;
-  const minZ = nextPosition.z - r;
-  const maxZ = nextPosition.z + r;
+function fireCharge() {
+  if (!pointerLocked || won) return;
 
-  for (const block of worldBlocks) {
-    if (block.userData.dynamic) continue;
+  const charge = new THREE.Mesh(new THREE.SphereGeometry(0.32, 12, 12), chargeMaterial);
+  const direction = new THREE.Vector3(0, 0, -1).applyEuler(camera.rotation).normalize();
+  charge.position.copy(camera.position).addScaledVector(direction, 1.5);
+  charge.userData.velocity = direction.multiplyScalar(40);
+  charge.userData.life = 2.4;
+  charge.castShadow = true;
 
-    const bx0 = block.position.x - 0.5;
-    const bx1 = block.position.x + 0.5;
-    const by0 = block.position.y - 0.5;
-    const by1 = block.position.y + 0.5;
-    const bz0 = block.position.z - 0.5;
-    const bz1 = block.position.z + 0.5;
+  scene.add(charge);
+  charges.push(charge);
+}
 
-    const overlaps = maxX > bx0 && minX < bx1 && maxY > by0 && minY < by1 && maxZ > bz0 && minZ < bz1;
-    if (!overlaps) continue;
-
-    const pushX = Math.min(Math.abs(maxX - bx0), Math.abs(bx1 - minX));
-    const pushZ = Math.min(Math.abs(maxZ - bz0), Math.abs(bz1 - minZ));
-
-    if (pushX < pushZ) {
-      if (nextPosition.x > block.position.x) nextPosition.x += pushX + 0.01;
-      else nextPosition.x -= pushX + 0.01;
-    } else {
-      if (nextPosition.z > block.position.z) nextPosition.z += pushZ + 0.01;
-      else nextPosition.z -= pushZ + 0.01;
+function tryBulldozer() {
+  if (!bulldozerMode || won) return;
+  for (const building of buildings) {
+    if (building.userData.destroyed) continue;
+    const dist = camera.position.distanceTo(building.position);
+    if (dist < building.userData.radius + 3) {
+      destroyBuilding(building, camera.position);
+      statusEl.textContent = "Bulldozer hit!";
+      return;
     }
   }
 }
 
-function updateDynamicBlocks(dt) {
-  for (let i = dynamicBlocks.length - 1; i >= 0; i -= 1) {
-    const block = dynamicBlocks[i];
-    block.userData.velocity.y -= 18 * dt;
-    block.position.addScaledVector(block.userData.velocity, dt);
-    block.rotation.x += dt * 2.4;
-    block.rotation.y += dt * 1.8;
+function updateCharges(dt) {
+  for (let i = charges.length - 1; i >= 0; i -= 1) {
+    const charge = charges[i];
+    charge.userData.life -= dt;
+    charge.position.addScaledVector(charge.userData.velocity, dt);
 
-    if (block.position.y < 0.5) {
-      block.position.y = 0.5;
-      block.userData.velocity.y *= -0.2;
-      block.userData.velocity.x *= 0.8;
-      block.userData.velocity.z *= 0.8;
+    if (charge.userData.life <= 0) {
+      scene.remove(charge);
+      charges.splice(i, 1);
+      continue;
+    }
 
-      if (Math.abs(block.userData.velocity.y) < 0.15) {
-        block.userData.velocity.y = 0;
-      }
+    raycaster.set(charge.position, charge.userData.velocity.clone().normalize());
+    const aliveBuildings = buildings.filter((b) => !b.userData.destroyed);
+    const hits = raycaster.intersectObjects(aliveBuildings, true);
+
+    if (hits.length > 0 && hits[0].distance < 1.5) {
+      const root = hits[0].object.parent;
+      const target = root.type === "Group" ? root : root.parent;
+      destroyBuilding(target, hits[0].point);
+      statusEl.textContent = "Direct hit!";
+      scene.remove(charge);
+      charges.splice(i, 1);
     }
   }
 }
+
+function updateRubble(dt) {
+  for (let i = rubble.length - 1; i >= 0; i -= 1) {
+    const piece = rubble[i];
+    piece.userData.life -= dt;
+    piece.userData.velocity.y -= 18 * dt;
+    piece.position.addScaledVector(piece.userData.velocity, dt);
+    piece.rotation.x += dt * 3;
+    piece.rotation.y += dt * 2;
+
+    if (piece.position.y < 0.15) {
+      piece.position.y = 0.15;
+      piece.userData.velocity.y *= -0.35;
+      piece.userData.velocity.x *= 0.85;
+      piece.userData.velocity.z *= 0.85;
+    }
+
+    if (piece.userData.life <= 0) {
+      scene.remove(piece);
+      rubble.splice(i, 1);
+    }
+  }
+}
+
+document.addEventListener("keydown", (event) => {
+  keys.add(event.code);
+
+  if (event.code === "KeyE") {
+    bulldozerMode = !bulldozerMode;
+    statusEl.textContent = bulldozerMode ? "Bulldozer mode enabled." : "Charge launcher enabled.";
+    updateHud();
+  }
+});
+
+document.addEventListener("keyup", (event) => {
+  keys.delete(event.code);
+});
+
+document.body.addEventListener("click", () => {
+  renderer.domElement.requestPointerLock();
+});
+
+window.addEventListener("mousedown", (event) => {
+  if (event.button !== 0) return;
+  fireCharge();
+});
+
+document.addEventListener("pointerlockchange", () => {
+  pointerLocked = document.pointerLockElement === renderer.domElement;
+  if (pointerLocked) {
+    statusEl.textContent = "Breach contract active. Tear the city down.";
+  }
+});
+
+document.addEventListener("mousemove", (event) => {
+  if (!pointerLocked) return;
+  yaw -= event.movementX * 0.0025;
+  pitch -= event.movementY * 0.0025;
+  pitch = Math.max(-1.3, Math.min(1.3, pitch));
+});
+
+const clock = new THREE.Clock();
 
 function updateMovement(dt) {
-  moveDelta.set(0, 0, 0);
-  if (keys.has("KeyW")) moveDelta.z -= 1;
-  if (keys.has("KeyS")) moveDelta.z += 1;
-  if (keys.has("KeyA")) moveDelta.x -= 1;
-  if (keys.has("KeyD")) moveDelta.x += 1;
+  moveDir.set(0, 0, 0);
 
-  if (moveDelta.lengthSq() > 0) {
-    moveDelta.normalize();
-    moveDelta.multiplyScalar(7.6 * dt);
-    moveDelta.applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
-  }
+  if (keys.has("KeyW")) moveDir.z -= 1;
+  if (keys.has("KeyS")) moveDir.z += 1;
+  if (keys.has("KeyA")) moveDir.x -= 1;
+  if (keys.has("KeyD")) moveDir.x += 1;
 
-  const next = player.position.clone().add(moveDelta);
-  next.y = Math.max(1.8, next.y + player.velocityY * dt);
-  resolvePlayerCollision(next);
-  player.position.copy(next);
+  moveDir.normalize();
+  const speed = bulldozerMode ? 18 : 10;
+  velocity.set(moveDir.x * speed * dt, 0, moveDir.z * speed * dt);
+  velocity.applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
 
-  camera.position.copy(player.position);
+  camera.position.add(velocity);
+  camera.position.y = bulldozerMode ? 4.5 : 7;
+
   camera.rotation.set(pitch, yaw, 0, "YXZ");
-}
 
-function updateHammerAnimation(dt) {
-  hammerCooldown = Math.max(0, hammerCooldown - dt);
-  hammerSwing = Math.max(0, hammerSwing - dt * 4.5);
+  tryBulldozer();
+}
 
   hammer.position.set(0.48, -0.56, -0.68);
   hammer.rotation.set(-0.4 + hammerSwing * 0.95, -0.2, 0.2 + hammerSwing * 0.6);
@@ -335,21 +336,8 @@ function animate() {
   const dt = Math.min(clock.getDelta(), 0.05);
 
   updateMovement(dt);
-  updateDynamicBlocks(dt);
-  updateHammerAnimation(dt);
-  renderer.render(scene, camera);
-}
-
-document.addEventListener("keydown", (event) => keys.add(event.code));
-document.addEventListener("keyup", (event) => keys.delete(event.code));
-
-document.body.addEventListener("click", () => renderer.domElement.requestPointerLock());
-document.addEventListener("pointerlockchange", () => {
-  pointerLocked = document.pointerLockElement === renderer.domElement;
-  if (pointerLocked) {
-    statusEl.textContent = "Sledge equipped. Smash support cubes to collapse structures.";
-  }
-});
+  updateCharges(dt);
+  updateRubble(dt);
 
 document.addEventListener("mousemove", (event) => {
   if (!pointerLocked) return;
@@ -358,16 +346,11 @@ document.addEventListener("mousemove", (event) => {
   pitch = Math.max(-1.25, Math.min(1.25, pitch));
 });
 
-window.addEventListener("mousedown", (event) => {
-  if (event.button !== 0) return;
-  breakWithHammer();
-});
-
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-generateDetailedCity();
+generateMap();
 animate();

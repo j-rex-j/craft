@@ -17,10 +17,10 @@ canvas {
   z-index: 10;
   left: 12px;
   top: 12px;
-  width: min(370px, calc(100vw - 24px));
+  width: min(360px, calc(100vw - 24px));
   padding: 12px 14px;
   border-radius: 12px;
-  background: rgba(5, 13, 24, 0.76);
+  background: rgba(5, 13, 24, 0.75);
   border: 1px solid rgba(95, 137, 202, 0.35);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(4px);
@@ -52,17 +52,4 @@ canvas {
 #status {
   margin: 0;
   color: #a6f4c5;
-}
-
-#crosshair {
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 9;
-  color: #f7fbff;
-  font-size: 24px;
-  text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
-  user-select: none;
-  pointer-events: none;
 }

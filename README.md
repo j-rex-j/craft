@@ -6,15 +6,15 @@ A browser-first 3D destruction sandbox inspired by Teardown-style gameplay.
 
 - **No setup required:** open `public/index.html` directly in a browser with internet access.
 - **CodeHS-friendly architecture:** single HTML/CSS/JS front-end with no build step.
-- **Teardown-like loop:** walk into structures with collisions, swing a hammer, and detach voxel chunks that fall with gravity.
-- **Denser city map:** many building lots with mixed tower sizes and annexes.
+- **Simple gameplay loop:** destroy buildings with explosive charges or bulldozer mode.
 
 ## Controls
 
 - Click game view: lock mouse
 - `WASD`: move
 - Mouse: look around
-- Left click: swing hammer and detach nearby cubes
+- Left click: launch explosive charge
+- `E`: toggle bulldozer mode
 
 ## Optional local server
 

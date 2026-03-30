@@ -9,17 +9,15 @@
   <body>
     <div id="hud">
       <h1>Mini Teardown 3D</h1>
-      <p>WASD move with collisions, mouse to look, left click swings your hammer.</p>
+      <p>WASD move, mouse look, click to lock cursor. Left click throws a charge, E toggles bulldozer mode.</p>
       <div class="stats">
-        <div><span>Objective:</span> <strong id="objective">Detach 75% of structural cubes</strong></div>
+        <div><span>Objective:</span> <strong id="objective">Destroy 75% of city value</strong></div>
         <div><span>Destroyed:</span> <strong id="destroyed">0%</strong></div>
         <div><span>Cash:</span> <strong id="cash">$0</strong></div>
-        <div><span>Tool:</span> <strong id="tool">Sledge Hammer</strong></div>
+        <div><span>Tool:</span> <strong id="tool">Charge Launcher</strong></div>
       </div>
       <p id="status">Click the game view to begin.</p>
     </div>
-
-    <div id="crosshair">+</div>
 
     <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
     <script src="game.js"></script>
