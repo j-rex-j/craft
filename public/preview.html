@@ -3,64 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Voxel Online Preview</title>
+    <title>Mini Teardown 3D Preview</title>
     <style>
-      :root {
-        color-scheme: dark;
-        font-family: Inter, system-ui, sans-serif;
-      }
-      body {
-        margin: 0;
-        background: #0b1020;
-        color: #e6edf7;
-      }
-      header {
-        padding: 14px 16px;
-        border-bottom: 1px solid #27324a;
-        background: rgba(15, 23, 42, 0.95);
-      }
-      h1 {
-        margin: 0 0 6px;
-        font-size: 18px;
-      }
-      p {
-        margin: 0;
-        font-size: 13px;
-        opacity: 0.9;
-      }
-      main {
-        height: calc(100vh - 72px);
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        padding: 8px;
-        box-sizing: border-box;
-      }
-      iframe {
-        border: 1px solid #27324a;
-        border-radius: 8px;
-        width: 100%;
-        height: 100%;
-        background: #000;
-      }
-      @media (max-width: 900px) {
-        main {
-          grid-template-columns: 1fr;
-        }
-      }
+      :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+      body { margin: 0; background: #080f18; color: #dfe8f5; }
+      header { padding: 14px 16px; border-bottom: 1px solid #28374f; }
+      h1 { margin: 0 0 6px; font-size: 18px; }
+      p { margin: 0; font-size: 13px; opacity: 0.9; }
+      main { height: calc(100vh - 72px); padding: 8px; box-sizing: border-box; }
+      iframe { width: 100%; height: 100%; border: 1px solid #28374f; border-radius: 8px; background: #000; }
     </style>
   </head>
   <body>
     <header>
-      <h1>Voxel Online – Live Preview</h1>
-      <p>
-        This page loads two live clients side-by-side so you can quickly preview multiplayer movement/block edits.
-        Click inside a panel to lock mouse. If a panel fails, ensure the server is running at <code>http://localhost:3000</code>.
-      </p>
+      <h1>Mini Teardown 3D – Preview</h1>
+      <p>Single-page 3D destruction demo. Click inside the frame to lock the mouse and play.</p>
     </header>
     <main>
-      <iframe src="/index.html" title="Player A Preview"></iframe>
-      <iframe src="/index.html" title="Player B Preview"></iframe>
+      <iframe src="/index.html" title="Mini Teardown 3D"></iframe>
     </main>
   </body>
 </html>
