@@ -1,30 +1,28 @@
-# Voxel Online
+# Mini Teardown 3D
 
-A lightweight browser-based multiplayer 3D voxel sandbox inspired by classic block-building gameplay loops.
+A browser-first 3D destruction sandbox inspired by Teardown-style gameplay.
 
-## Features
+## Why this version
 
-- Real-time multiplayer movement synced with Socket.IO
-- Place and remove voxel blocks with mouse clicks
-- Procedurally generated starter map with terrain + trees
-- Custom block textures generated as pixel-art style materials
-- Selectable player color/"skin" texture profile
+- **No setup required:** open `public/index.html` directly in a browser with internet access.
+- **CodeHS-friendly architecture:** single HTML/CSS/JS front-end with no build step.
+- **Teardown-like loop:** walk into structures with collisions, swing a hammer, and detach voxel chunks that fall with gravity.
+- **Denser city map:** many building lots with mixed tower sizes and annexes.
 
-## Run locally
+## Controls
+
+- Click game view: lock mouse
+- `WASD`: move
+- Mouse: look around
+- Left click: swing hammer and detach nearby cubes
+
+## Optional local server
+
+If you prefer serving files from localhost:
 
 ```bash
 npm install
 npm start
 ```
 
-Then open `http://localhost:3000` in multiple browser tabs/windows.
-
-To preview two clients side-by-side in one browser window, open `http://localhost:3000/preview.html`.
-
-## Controls
-
-- Click game window: lock mouse
-- `WASD`: move
-- `Space` / `Shift`: up/down (free-fly)
-- Left click: remove block
-- Right click: place selected block
+Then open `http://localhost:3000`.
