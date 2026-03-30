@@ -3,38 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Voxel Online</title>
+    <title>Mini Teardown 3D</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div id="hud">
-      <h1>Voxel Online</h1>
-      <p>Click to lock mouse. WASD move, Space/Shift up/down, Left click break, Right click place.</p>
-      <div class="row">
-        <label for="blockSelect">Block:</label>
-        <select id="blockSelect">
-          <option value="grass">Grass</option>
-          <option value="dirt">Dirt</option>
-          <option value="stone">Stone</option>
-          <option value="wood">Wood</option>
-          <option value="leaf">Leaf</option>
-          <option value="sand">Sand</option>
-          <option value="brick">Brick</option>
-        </select>
+      <h1>Mini Teardown 3D</h1>
+      <p>WASD move, mouse look, click to lock cursor. Left click throws a charge, E toggles bulldozer mode.</p>
+      <div class="stats">
+        <div><span>Objective:</span> <strong id="objective">Destroy 75% of city value</strong></div>
+        <div><span>Destroyed:</span> <strong id="destroyed">0%</strong></div>
+        <div><span>Cash:</span> <strong id="cash">$0</strong></div>
+        <div><span>Tool:</span> <strong id="tool">Charge Launcher</strong></div>
       </div>
-      <div class="row">
-        <label for="skinSelect">Player Texture:</label>
-        <select id="skinSelect">
-          <option value="blue">Blue</option>
-          <option value="red">Red</option>
-          <option value="green">Green</option>
-          <option value="purple">Purple</option>
-        </select>
-      </div>
-      <p id="status">Connecting...</p>
+      <p id="status">Click the game view to begin.</p>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script type="module" src="game.js"></script>
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+    <script src="game.js"></script>
   </body>
 </html>
