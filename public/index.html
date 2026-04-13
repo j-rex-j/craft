@@ -3,23 +3,64 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mini Teardown 3D</title>
+    <title>Local SNES Homebrew Runner</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div id="hud">
-      <h1>Mini Teardown 3D</h1>
-      <p>WASD move, mouse look, click to lock cursor. Left click throws a charge, E toggles bulldozer mode.</p>
-      <div class="stats">
-        <div><span>Objective:</span> <strong id="objective">Destroy 75% of city value</strong></div>
-        <div><span>Destroyed:</span> <strong id="destroyed">0%</strong></div>
-        <div><span>Cash:</span> <strong id="cash">$0</strong></div>
-        <div><span>Tool:</span> <strong id="tool">Charge Launcher</strong></div>
-      </div>
-      <p id="status">Click the game view to begin.</p>
-    </div>
+    <main class="app">
+      <section class="panel">
+        <h1>Local SNES Homebrew Runner</h1>
+        <p>Runs fully in your browser using local files only. Load your own homebrew <code>.sfc</code>, <code>.smc</code>, or zipped ROM.</p>
 
-    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-    <script src="game.js"></script>
+        <div class="controls">
+          <label class="file-input" for="rom">Choose ROM</label>
+          <input id="rom" type="file" accept=".sfc,.smc,.zip,application/zip" />
+
+          <label class="check">
+            <input id="ishirom" type="checkbox" />
+            Treat ROM as HiROM
+          </label>
+
+          <div class="buttons">
+            <button id="pause" type="button">Pause</button>
+            <button id="reset" type="button">Reset</button>
+            <button id="hardreset" type="button">Power cycle</button>
+            <button id="runframe" type="button">Run 1 frame</button>
+          </div>
+        </div>
+
+        <div class="help">
+          <h2>Controls</h2>
+          <p>D-pad: Arrow keys · Start: Enter · Select: Shift · A: X · B: Z · X: S · Y: A · L: D · R: C</p>
+          <p>Debug: <kbd>L</kbd> toggles CPU trace, <kbd>P</kbd> toggles no-PPU mode.</p>
+        </div>
+
+        <p id="status">Ready. Load a homebrew ROM to begin.</p>
+      </section>
+
+      <section class="screen-wrap">
+        <canvas id="output" aria-label="SNES output"></canvas>
+      </section>
+
+      <section class="log-wrap">
+        <h2>Runtime log</h2>
+        <pre id="log" aria-live="polite"></pre>
+      </section>
+    </main>
+
+    <script src="emulator/lib/zip.js"></script>
+    <script src="emulator/lib/inflate.js"></script>
+
+    <script src="emulator/snes/cart.js"></script>
+    <script src="emulator/snes/dsp.js"></script>
+    <script src="emulator/snes/spc.js"></script>
+    <script src="emulator/snes/apu.js"></script>
+    <script src="emulator/snes/pipu.js"></script>
+    <script src="emulator/snes/cpu.js"></script>
+    <script src="emulator/snes/snes.js"></script>
+
+    <script src="emulator/js/audio.js"></script>
+    <script src="emulator/js/trace.js"></script>
+    <script src="emulator/js/main.js"></script>
   </body>
 </html>

@@ -1,24 +1,16 @@
-# Mini Teardown 3D
+# Local SNES Homebrew Runner
 
-A browser-first 3D destruction sandbox inspired by Teardown-style gameplay.
+A fully local SNES emulator website for running **homebrew ROMs** in your browser.
 
-## Why this version
+## Features
 
-- **No setup required:** open `public/index.html` directly in a browser with internet access.
-- **CodeHS-friendly architecture:** single HTML/CSS/JS front-end with no build step.
-- **Simple gameplay loop:** destroy buildings with explosive charges or bulldozer mode.
+- Works on `http://localhost` with no cloud services.
+- Loads `.sfc`, `.smc`, and `.zip` ROM files.
+- Keyboard controls mapped to SNES pad buttons.
+- Includes pause, reset, and power-cycle controls.
+- Drag-and-drop ROM loading.
 
-## Controls
-
-- Click game view: lock mouse
-- `WASD`: move
-- Mouse: look around
-- Left click: launch explosive charge
-- `E`: toggle bulldozer mode
-
-## Optional local server
-
-If you prefer serving files from localhost:
+## Run locally
 
 ```bash
 npm install
@@ -26,3 +18,8 @@ npm start
 ```
 
 Then open `http://localhost:3000`.
+
+## Notes
+
+- Bring your own legal homebrew ROM files.
+- The emulator core is based on the open-source SnesJs project by angelo_wf.
